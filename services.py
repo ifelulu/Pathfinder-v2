@@ -593,6 +593,10 @@ class PathfindingService(QObject):
             plt.figure(figsize=(12, 10))
             ax = plt.gca()
             
+            # ***** INVERT THE Y-AXIS *****
+            ax.invert_yaxis()
+            # ***********************************************
+
             # Draw obstacles if available and requested
             if include_obstacles and model.obstacles:
                 for poly in model.obstacles:

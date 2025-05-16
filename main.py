@@ -783,7 +783,8 @@ class MainWindow(QMainWindow):
         self.workflow_panel.load_pdf_button.clicked.connect(self._handle_open_pdf_action)
         self.workflow_panel.set_scale_button.clicked.connect(lambda: self.pdf_viewer.set_mode(InteractionMode.SET_SCALE_START))
         self.workflow_panel.precompute_paths_button.clicked.connect(lambda: self.pathfinding_service.precompute_all_paths(self.model))
-        
+        self.workflow_panel.calculate_button.clicked.connect(self._handle_calculate_single_path)
+
         # Connect search panel signals
         self.search_filter_panel.search_points.connect(self._handle_search_points)
         self.search_filter_panel.search_obstacles.connect(self._handle_search_obstacles)
@@ -1383,7 +1384,8 @@ class MainWindow(QMainWindow):
             self.status_progress.show_message(f"Path: {start_n} to {end_n}. Distance: {dist:.2f} {unit}", 5000)
         else:
             self.status_progress.show_message(f"No path found from {start_n} to {end_n}", 5000)
-
+        self._update_action_states()
+        
     def _trigger_picklist_analysis(self):
         # ... (Logic remains similar, calls self.analysis_service.load_and_analyze) ...
         if not self.model.can_analyze_or_animate: QMessageBox.warning(self, "Analyze", "Set PDF, scale, points & precompute paths."); return
@@ -2543,7 +2545,7 @@ class MainWindow(QMainWindow):
         
         # Enable/disable analysis actions
         if hasattr(self, 'precompute_paths_action'):
-            self.precompute_paths_action.setEnabled(scale_set and (self.model.pick_aisles or self.model.staging_locations))
+            self.precompute_paths_action.setEnabled(scale_set and (bool(self.model.pick_aisles) or bool(self.model.staging_locations)))
         if hasattr(self, 'analyze_picklist_action'):
             self.analyze_picklist_action.setEnabled(can_analyze)
         if hasattr(self, 'animate_picklist_action'):
@@ -2557,7 +2559,7 @@ class MainWindow(QMainWindow):
         if hasattr(self, 'toolbar_set_scale_action'):
             self.toolbar_set_scale_action.setEnabled(pdf_loaded)
         if hasattr(self, 'toolbar_precompute_paths_action'):
-            self.toolbar_precompute_paths_action.setEnabled(scale_set and (self.model.pick_aisles or self.model.staging_locations))
+           self.toolbar_precompute_paths_action.setEnabled(scale_set and (bool(self.model.pick_aisles) or bool(self.model.staging_locations))) 
         if hasattr(self, 'toolbar_analyze_picklist_action'):
             self.toolbar_analyze_picklist_action.setEnabled(can_analyze)
         if hasattr(self, 'toolbar_animate_picklist_action'):
@@ -2586,17 +2588,17 @@ class MainWindow(QMainWindow):
     def _update_spinbox_values_from_model(self):
         """Update UI spinbox values to match the model."""
         if hasattr(self, 'resolution_spinbox'):
-            self.resolution_spinbox.setValue(self.model.grid_resolution)
+            self.resolution_spinbox.setValue(self.model.grid_resolution_factor)
         if hasattr(self, 'penalty_spinbox'):
-            self.penalty_spinbox.setValue(self.model.staging_penalty)
+            self.penalty_spinbox.setValue(self.model.staging_area_penalty)
             
     def _update_granularity_label(self):
         """Update the granularity label with calculated grid dimensions."""
         if hasattr(self, 'granularity_label') and self.model.is_scale_set:
             # Calculate approximate grid dimensions based on PDF size
             if self.model.pdf_bounds and self.model.pdf_bounds.isValid():
-                grid_w = round(self.model.pdf_bounds.width() / self.model.grid_resolution)
-                grid_h = round(self.model.pdf_bounds.height() / self.model.grid_resolution)
+                grid_w = round(self.model.pdf_bounds.width() / self.model.grid_resolution_factor)
+                grid_h = round(self.model.pdf_bounds.height() / self.model.grid_resolution_factor)
                 self.granularity_label.setText(f"Path Detail Granularity: ~{grid_w}x{grid_h} cells")
             else:
                 self.granularity_label.setText("Path Detail Granularity: N/A")
