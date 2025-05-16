@@ -1,0 +1,20 @@
+# GUI Framework
+PySide6>=6.5.0  # Qt6 bindings for Python - used for the application interface
+
+# PDF Handling
+PyMuPDF>=1.23.0  # PDF rendering library (also known as fitz)
+
+# Data Processing and Computation
+numpy>=1.22.0  # Numerical Python - used for grid representation and pathfinding
+scipy>=1.9.0  # Scientific computing library - used for image dilation in pathfinding
+
+# Visualization
+matplotlib>=3.6.0  # Plotting library - used for analysis histograms
+
+# Optional but often used with CSVs (though current direct use might be minimal)
+pandas>=1.5.0  # Data manipulation library - can simplify CSV operations
+
+# UI and Accessibility Enhancements
+qtawesome>=1.2.0  # Font-awesome icons for Qt applications
+darkdetect>=0.8.0  # Auto-detect OS dark/light mode for theme switching
+dataclasses-json>=0.5.7  # JSON serialization for preferences and settings 
